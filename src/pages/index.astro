@@ -1,0 +1,65 @@
+---
+// Build-time data: Astro evaluates this frontmatter during `astro build`,
+// so BUILD_TIME bakes the moment of the build into the static HTML. If
+// you see it match a fresh deploy timestamp on the live site, the paas
+// pipeline (clone -> npm install -> astro build -> nginx serve) worked
+// end-to-end.
+const BUILD_TIME = new Date().toISOString();
+const ASTRO_VERSION = (await import('astro/package.json', { assert: { type: 'json' } })).default.version;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>paas · astro sample</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; min-height: 100vh;
+        background: linear-gradient(135deg, #0b0d11 0%, #1c2027 100%);
+        color: #e6e8eb;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        display: flex; align-items: center; justify-content: center; padding: 24px;
+      }
+      .card {
+        background: #14171d; border: 1px solid #262b34; border-radius: 12px;
+        padding: 28px 32px; max-width: 520px; width: 100%;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+      }
+      .badge {
+        display: inline-block; padding: 3px 8px;
+        background: linear-gradient(135deg, #ff5d01 0%, #ff8a3d 100%);
+        color: #0b0d11; font-weight: 700; font-size: 11px; letter-spacing: 0.08em;
+        border-radius: 4px; margin-bottom: 14px;
+      }
+      h1 { margin: 0 0 6px; font-size: 28px; font-weight: 700; }
+      p.sub { margin: 0 0 22px; color: #9aa1ad; font-size: 14px; }
+      .row {
+        display: flex; justify-content: space-between; align-items: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px; padding: 8px 0; border-top: 1px solid #1e222a;
+      }
+      .k { color: #6b7280; }
+      .v { color: #7aa2f7; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <span class="badge">ASTRO</span>
+      <h1>It works.</h1>
+      <p class="sub">End-to-end sample deployed via <code>paas</code>.</p>
+      <div class="row"><span class="k">built at</span><span class="v">{BUILD_TIME}</span></div>
+      <div class="row"><span class="k">astro</span><span class="v">{ASTRO_VERSION}</span></div>
+      <div class="row"><span class="k">browser time</span><span class="v" id="now">—</span></div>
+    </div>
+    <script is:inline>
+      // Tiny client-side tick so we can tell the page actually rendered
+      // and Astro's static HTML is being served (not a 404 placeholder).
+      const el = document.getElementById('now');
+      const paint = () => { el.textContent = new Date().toISOString(); };
+      paint();
+      setInterval(paint, 1000);
+    </script>
+  </body>
+</html>
